@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Scraper</title>
+    <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+
+    <link rel="stylesheet" href="static/css/custom.css">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.0/dist/sweetalert2.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.0/dist/sweetalert2.all.min.js"></script>
+</head>
+
+<body class="min-h-screen p-8">
+
+
+    <!-- <div class="p-4">
+        <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4 text-start bg-white rounded-lg">
+            {% for site in websites %}
+            <li>
+                <a href="{{ site.url }}" target="_blank" rel="noopener noreferrer"
+                    class="url-link flex items-center space-x-2 text-cyan-700 hover:text-cyan-900 underline px-4 py-2 rounded-md transition-all duration-300 border border-gray-300 shadow-md bg-slate-50"
+                    data-url="{{ site.url }}" data-pattern="{{ site.pagination_pattern }}" data-pages="{{ site.max_pages }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-globe w-5 h-5 text-cyan-700" viewBox="0 0 16 16">
+                        <path
+                            d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m7.5-6.923c-.67.204-1.335.82-1.887 1.855A8 8 0 0 0 5.145 4H7.5zM4.09 4a9.3 9.3 0 0 1 .64-1.539 7 7 0 0 1 .597-.933A7.03 7.03 0 0 0 2.255 4zm-.582 3.5c.03-.877.138-1.718.312-2.5H1.674a7 7 0 0 0-.656 2.5zM4.847 5a12.5 12.5 0 0 0-.338 2.5H7.5V5zM8.5 5v2.5h2.99a12.5 12.5 0 0 0-.337-2.5zM4.51 8.5a12.5 12.5 0 0 0 .337 2.5H7.5V8.5zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5zM5.145 12q.208.58.468 1.068c.552 1.035 1.218 1.65 1.887 1.855V12zm.182 2.472a7 7 0 0 1-.597-.933A9.3 9.3 0 0 1 4.09 12H2.255a7 7 0 0 0 3.072 2.472M3.82 11a13.7 13.7 0 0 1-.312-2.5h-2.49c.062.89.291 1.733.656 2.5zm6.853 3.472A7 7 0 0 0 13.745 12H11.91a9.3 9.3 0 0 1-.64 1.539 7 7 0 0 1-.597.933M8.5 12v2.923c.67-.204 1.335-.82 1.887-1.855q.26-.487.468-1.068zm3.68-1h2.146c.365-.767.594-1.61.656-2.5h-2.49a13.7 13.7 0 0 1-.312 2.5m2.802-3.5a7 7 0 0 0-.656-2.5H12.18c.174.782.282 1.623.312 2.5zM11.27 2.461c.247.464.462.98.64 1.539h1.835a7 7 0 0 0-3.072-2.472c.218.284.418.598.597.933M10.855 4a8 8 0 0 0-.468-1.068C9.835 1.897 9.17 1.282 8.5 1.077V4z" />
+                    </svg>
+                    <span>{{ site.title }}</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div> -->
+    <div class="p-4">
+        <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 bg-white rounded-lg">
+            {% for site in websites %}
+            <li>
+                <a href="{{ site.url }}" target="_blank" rel="noopener noreferrer"
+                    class="url-link flex items-center space-x-2 text-cyan-700 hover:text-cyan-900 underline px-4 py-2 rounded-md transition-all duration-300 border border-gray-300 shadow-md bg-slate-50"
+                    data-url="{{ site.url }}" data-pattern="{{ site.pagination_pattern }}"
+                    data-pages="{{ site.max_pages }}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-globe w-5 h-5 text-cyan-700" viewBox="0 0 16 16">
+                        <path
+                            d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8m7.5-6.923c-.67.204-1.335.82-1.887 1.855A8 8 0 0 0 5.145 4H7.5zM4.09 4a9.3 9.3 0 0 1 .64-1.539 7 7 0 0 1 .597-.933A7.03 7.03 0 0 0 2.255 4zm-.582 3.5c.03-.877.138-1.718.312-2.5H1.674a7 7 0 0 0-.656 2.5zM4.847 5a12.5 12.5 0 0 0-.338 2.5H7.5V5zM8.5 5v2.5h2.99a12.5 12.5 0 0 0-.337-2.5zM4.51 8.5a12.5 12.5 0 0 0 .337 2.5H7.5V8.5zm3.99 0V11h2.653c.187-.765.306-1.608.338-2.5zM5.145 12q.208.58.468 1.068c.552 1.035 1.218 1.65 1.887 1.855V12zm.182 2.472a7 7 0 0 1-.597-.933A9.3 9.3 0 0 1 4.09 12H2.255a7 7 0 0 0 3.072 2.472M3.82 11a13.7 13.7 0 0 1-.312-2.5h-2.49c.062.89.291 1.733.656 2.5zm6.853 3.472A7 7 0 0 0 13.745 12H11.91a9.3 9.3 0 0 1-.64 1.539 7 7 0 0 1-.597.933M8.5 12v2.923c.67-.204 1.335-.82 1.887-1.855q.26-.487.468-1.068zm3.68-1h2.146c.365-.767.594-1.61.656-2.5h-2.49a13.7 13.7 0 0 1-.312 2.5m2.802-3.5a7 7 0 0 0-.656-2.5H12.18c.174.782.282 1.623.312 2.5zM11.27 2.461c.247.464.462.98.64 1.539h1.835a7 7 0 0 0-3.072-2.472c.218.284.418.598.597.933M10.855 4a8 8 0 0 0-.468-1.068C9.835 1.897 9.17 1.282 8.5 1.077V4z" />
+                    </svg>
+                    <span>{{ site.title }}</span>
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Header -->
+    <header class="text-center mb-8">
+        <!-- <h1 class="text-4xl font-bold text-black">Web Scraper Dashboard</h1>
+        <p class="text-white mt-1">Effortlessly scrape product data from multiple websites</p> -->
+        <div class="max-w-3xl mx-auto bg-white p-6 rounded-lg ">
+            <table class="table-auto w-full border-collapse border border-gray-300">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="border border-gray-300 px-4 py-2">Daily Limit</th>
+                        <th class="border border-gray-300 px-4 py-2">Fetched Today</th>
+                        <th class="border border-gray-300 px-4 py-2">Last Reset</th>
+                        <!-- <th class="border border-gray-300 px-4 py-2">Actions</th> -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="border border-gray-300 px-4 py-2 text-center" id="daily_limit">Loading...</td>
+                        <td class="border border-gray-300 px-4 py-2 text-center" id="products_fetched_today">Loading...
+                        </td>
+                        <td class="border border-gray-300 px-4 py-2 text-center" id="last_reset">Loading...</td>
+                        <!-- <td class="border border-gray-300 px-4 py-2 text-center">
+                            <button onclick="resetLimit()"
+                                class="bg-cyan-500 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                Reset Limit
+                            </button>
+                        </td> -->
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+
+    </header>
+
+
+
+
+    <!-- Scraping Form -->
+    <div class="bg-slate-100 mb-8 p-8 w-full lg:w-3/4 rounded-2xl border ml-40">
+        <h1 class="text-3xl font-bold mb-6 text-center text-black">Start New Scraper</h1>
+
+        <form id="scrapeForm" class="space-y-6" action="/fetch" method="POST">
+            <div>
+                <label class="block text-lg font-semibold text-gray-700">Enter Products URL Here</label>
+                <input id="urlInput" type="text" placeholder="https://example.com/product"
+                    class="w-full border-2 rounded-lg p-3 focus:outline-none focus:ring-4 focus:ring-purple-300">
+            </div>
+
+            <div hidden>
+                <label class="block text-lg font-semibold text-gray-700">Pagination Pattern</label>
+                <input id="paginationPattern" type="text" placeholder="e.g., ?page="
+                    class="w-full border-2 rounded-lg p-3 focus:outline-none focus:ring-4 focus:ring-purple-300">
+            </div>
+
+            <div>
+                <label class="block text-lg font-semibold text-gray-700">Number of Pages</label>
+                <input id="maxPages" type="number" placeholder="e.g., 5" min="1"
+                    class="w-full border-2 rounded-lg p-3 focus:outline-none focus:ring-4 focus:ring-purple-300">
+            </div>
+
+            <button type="submit"
+                class="w-full bg-cyan-500 text-white py-3 rounded-xl font-semibold hover:scale-105 transform transition duration-300">
+                Start Scraping
+            </button>
+        </form>
+    </div>
+    </div>
+
+    <script>
+        document.querySelector('#scrapeForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+
+            const url = document.querySelector('#urlInput').value;
+            const paginationPattern = document.querySelector('#paginationPattern').value;
+            const maxPages = document.querySelector('#maxPages').value;
+
+            // Show SweetAlert2 loader before sending request
+            Swal.fire({
+                title: 'Fetching Data...',
+                text: 'Please wait while we process your request.',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            fetch('/fetch', {
+                method: 'POST',
+                body: new URLSearchParams({
+                    'url': url,
+                    'paginationPattern': paginationPattern,
+                    'maxPages': maxPages
+                }),
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            })
+                .then(response => {
+                    Swal.close(); // Close loader when response is received
+
+                    // Check if the response status is 400 (Daily Limit Reached)
+                    if (response.status === 400) {
+                        response.json().then(data => {
+                            Swal.fire({
+                                title: 'Daily Limit Reached',
+                                text: 'You have reached the daily limit for scraping.',
+                                icon: 'warning',
+                                confirmButtonText: 'Ok'
+                            }).then(() => {
+                                // Optionally, you can disable the button or perform other actions here
+                                document.querySelector('#scraping-button-id').disabled = true;
+                            });
+                        });
+                        // Stop further processing
+                        return;
+                    }
+
+                    // If the status is not 400, proceed to parse JSON
+                    return response.json();
+                })
+
+                .then(data => {
+                    if (data.file) {
+                        const byteCharacters = atob(data.file);
+                        const byteNumbers = new Uint8Array(byteCharacters.length);
+                        for (let i = 0; i < byteCharacters.length; i++) {
+                            byteNumbers[i] = byteCharacters.charCodeAt(i);
+                        }
+                        const blob = new Blob([byteNumbers], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                        const blobUrl = URL.createObjectURL(blob);
+
+                        Swal.fire({
+                            title: 'Download Ready!',
+                            html: `
+                                <a id="download-link" href="${blobUrl}" download="${data.filename}">
+                                    <button class="bg-cyan-500" style=" padding: 10px 20px; border-radius: 5px; color: white;">
+                                        Download Excel File
+                                    </button>
+                                </a>
+                            `,
+                            icon: 'success',
+                            showConfirmButton: false,
+                            showCloseButton: true,
+
+                        });
+
+                    } else {
+                        Swal.fire({
+                            title: 'Unknown website',
+                            text: 'Please enter a valid URL.',
+                            icon: 'error',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                })
+                .catch(error => {
+                    Swal.close(); // Close loader in case of error
+                    if (error.message !== 'Daily limit reached') {  // Avoid showing another error for daily limit
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'An error occurred while fetching the data.',
+                            icon: 'error',
+                            confirmButtonText: 'Ok'
+                        });
+                    }
+                });
+        });
+
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const urlLinks = document.querySelectorAll(".url-link");
+            const urlInput = document.getElementById("urlInput");
+            const paginationInput = document.getElementById("paginationPattern");
+            const maxPagesInput = document.getElementById("maxPages");
+
+            urlLinks.forEach(link => {
+                link.addEventListener("click", function (event) {
+                    event.preventDefault();
+                    urlInput.value = "";
+                    urlInput.placeholder = this.getAttribute("data-url");
+                    paginationInput.value = this.getAttribute("data-pattern");
+                    maxPagesInput.value = this.getAttribute("data-pages");
+
+                    // Open the URL in a new tab securely
+                    const newTab = window.open(this.getAttribute("data-url"), "_blank");
+                    if (newTab) {
+                        newTab.opener = null; // Prevents the new page from accessing window.opener
+                    } else {
+                        alert("Popup blocked! Please allow popups for this site.");
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        function resetLimit() {
+            fetch("/reset-limit", { method: "POST" })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message || "Daily limit has been reset successfully!");
+                        updateData();  // Refresh table data after reset
+                    } else {
+                        alert(data.message || "Failed to reset limit. Please try again.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("An error occurred while resetting the limit.");
+                });
+        }
+
+        function updateData() {
+            fetch("/get_data")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById("daily_limit").textContent = data.data.daily_limit;
+                        document.getElementById("products_fetched_today").textContent = data.data.products_fetched_today;
+                        document.getElementById("last_reset").textContent = data.data.last_reset;
+                    } else {
+                        console.error("Error updating data:", data.message);
+                    }
+                })
+                .catch(error => console.error("Error fetching data:", error));
+        }
+
+        setInterval(updateData, 5000);  // Auto-refresh data every 5 seconds
+    </script>
+
+
+    <script>
+        async function fetchData() {
+            try {
+                const response = await fetch("/get_data"); // Fetch from API
+                const result = await response.json(); // Convert response to JSON
+                const data = result.data; // Extract data object
+
+                // Update table content dynamically
+                document.getElementById("daily_limit").textContent = data.daily_limit;
+                document.getElementById("products_fetched_today").textContent = data.products_fetched_today;
+                document.getElementById("last_reset").textContent = data.last_reset;
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
+        // Call fetchData when the page loads
+        window.onload = fetchData;
+    </script>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Scraper</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <link rel="stylesheet" href="static/css/custom.css"> -->
+    <!-- <link rel="stylesheet" href="static/main-tw.css"> -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.0/dist/sweetalert2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.0/dist/sweetalert2.all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+</head>
+
+<body class="min-h-screen bg-gray-100">
+    <!-- Mobile Menu Button -->
+    <button id="mobileMenuButton" class="md:hidden p-4 fixed right-0 top-0 z-50">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg fixed w-full z-40">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <span class="text-2xl font-bold text-cyan-600">ScraperPro</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="/" class="text-gray-700 hover:text-cyan-600 font-medium">Dashboard</a>
+                    <a href="/productview" class="text-gray-700 hover:text-cyan-600 font-medium">Reports</a>
+                    <a href="/summery" class="text-gray-700 hover:text-cyan-600 font-medium">Overall Summary</a>
+                </div>
+            </div>
+        </div>
+        <div id="mobileMenu" class="hidden md:hidden absolute w-full bg-white shadow-lg py-2">
+            <a href="/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Dashboard</a>
+            <a href="/productview" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Reports</a>
+            <a href="/summery" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Overall Summary</a>
+        </div>
+    </nav>
+    <main class="pt-20 pb-8 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Dropdown -->
+            <div class="mb-6 max-w-xs">
+                <label for="tableSelect" class="block text-lg font-semibold text-gray-700 mb-2">
+                    Select Table View:
+                </label>
+                <select id="tableSelect"
+                    class="p-2 w-full border border-gray-300 rounded-md shadow-sm focus:ring-cyan-500 focus:border-cyan-500">
+                    <option value="category">CATEGORY-WISE SUMMARY</option>
+                    <option value="diawt">DIA WT WISE</option>
+                    <option value="combined">CATEGORY + DIA WT COMBINED SUMMARY</option>
+                </select>
+            </div>
+
+            <!-- Table Views -->
+            <div id="category" class="table-view">
+                <div
+                    class="bg-white p-4 shadow rounded-lg overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold">CATEGORY-WISE SUMMARY</h2>
+                        <button id="exportBtn" class="bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700">
+                            Export Report 
+                        </button>
+                    </div>
+
+                    <table class="min-w-full table-auto border-collapse border border-gray-300 text-sm sm:text-base">
+                        <!-- Populated by JS -->
+                    </table>
+                </div>
+
+            </div>
+
+            <div id="diawt" class="table-view hidden">
+                <div
+                    class="bg-white p-4 shadow rounded-lg overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold">DIA WT WISE</h2>
+                        <button id="exportBtn" class="bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700">
+                            Export Report
+                        </button>
+                    </div>
+
+                    <table class="min-w-full table-auto border-collapse border border-gray-300 text-sm sm:text-base">
+                        <!-- Populated by JS -->
+                    </table>
+                </div>
+            </div>
+
+
+            <div id="combined" class="table-view hidden">
+                <div
+                    class="bg-white p-4 shadow rounded-lg overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-semibold">CATEGORY + DIA WT COMBINED SUMMARY</h2>
+                        <button id="exportBtn"
+                            class="bg-cyan-600 text-white px-4 py-2 rounded hover:bg-cyan-700">
+                            Export Report
+                        </button>
+                    </div>
+
+                    <table class="min-w-full table-auto border-collapse border border-gray-300 text-sm sm:text-base">
+                        <!-- Populated by JS -->
+                    </table>
+                </div>
+            </div>
+
+
+            <div id="pageControls" class="flex justify-center mt-4 hidden"></div>
+        </div>
+    </main>
+
+
+    <script>
+        const tableSelect = document.getElementById("tableSelect");
+        const pageControls = document.getElementById("pageControls");
+
+        const tables = {
+            category: {
+                api: "/api/category-summary",
+                container: document.querySelector("#category table"),
+                headerOrder: ["Category", "TOTAL"],
+                enablePagination: true
+            },
+            diawt: {
+                api: "/api/diawt-summary",
+                container: document.querySelector("#diawt table"),
+                headerOrder: ["DIA WTS", "TOTAL"],
+                enablePagination: false
+            },
+            combined: {
+                api: "/api/combined-summary",
+                container: document.querySelector("#combined table"),
+                headerOrder: ["Category"],
+                enablePagination: true
+            }
+        };
+
+        let currentPage = 1;
+        const pageSize = 10;
+        let currentData = [];
+
+        function renderPagination(pageCount) {
+            pageControls.innerHTML = '';
+            if (pageCount <= 1) return;
+
+            const maxDesktop = 5;
+            const maxMobile = 3;
+            const isMobile = window.innerWidth <= 768;
+            const maxVisible = isMobile ? maxMobile : maxDesktop;
+
+            const addBtn = (p, label = p) => {
+                if (p < 1 || p > pageCount) return;
+                const active = p === currentPage
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-200';
+                pageControls.insertAdjacentHTML('beforeend', `
+                <button onclick="goToPage(${p})"
+                        class="px-3 py-1 m-1 rounded ${active}">
+                  ${label}
+                </button>
+            `);
+            };
+
+            const addEllipsis = () =>
+                pageControls.insertAdjacentHTML('beforeend', `<span class="px-2">...</span>`);
+
+            addBtn(currentPage - 1, 'Prev');
+
+            if (pageCount <= maxVisible + 2) {
+                for (let i = 1; i <= pageCount; i++) addBtn(i);
+            } else {
+                addBtn(1);
+                let start = Math.max(2, currentPage - Math.floor(maxVisible / 2));
+                let end = Math.min(pageCount - 1, currentPage + Math.floor(maxVisible / 2));
+
+                if (start > 2) addEllipsis();
+                for (let i = start; i <= end; i++) addBtn(i);
+                if (end < pageCount - 1) addEllipsis();
+
+                addBtn(pageCount);
+            }
+
+            addBtn(currentPage + 1, 'Next');
+        }
+
+        function goToPage(pageNum) {
+            currentPage = pageNum;
+            renderTable(currentData, currentContainer, currentHeaders, currentEnablePagination);
+            renderPagination(Math.ceil(currentData.length / pageSize));
+        }
+
+        let currentHeaders = [];
+        let currentContainer = null;
+        let currentEnablePagination = false;
+
+        async function loadTable(selected) {
+            // Hide all
+            document.querySelectorAll(".table-view").forEach(view => {
+                view.classList.add("hidden");
+            });
+
+            document.getElementById(selected).classList.remove("hidden");
+            const { api, container, headerOrder, enablePagination } = tables[selected];
+
+            currentContainer = container;
+            currentEnablePagination = enablePagination;
+
+            try {
+                const response = await fetch(api);
+                const json = await response.json();
+                currentData = json.data || [];
+                currentPage = 1;
+
+                const allKeys = Object.keys(currentData[0] || {});
+                const priorityHeaders = headerOrder || [];
+                const remainingHeaders = allKeys.filter(k => !priorityHeaders.includes(k));
+                currentHeaders = [...priorityHeaders, ...remainingHeaders];
+
+                renderTable(currentData, container, currentHeaders, enablePagination);
+                if (enablePagination) {
+                    renderPagination(Math.ceil(currentData.length / pageSize));
+                    pageControls.classList.remove("hidden");
+                } else {
+                    pageControls.classList.add("hidden");
+                }
+
+            } catch (err) {
+                console.error("Failed to fetch data:", err);
+                container.innerHTML = "<tr><td colspan='100%' class='text-center p-4 text-red-600'>Error loading data</td></tr>";
+            }
+        }
+
+        function renderTable(data, container, headers, enablePagination) {
+            container.innerHTML = "";
+
+            if (data.length === 0) {
+                container.innerHTML = "<tr><td colspan='100%' class='text-center p-4'>No data available</td></tr>";
+                return;
+            }
+
+            const headerRow = document.createElement("tr");
+            headers.forEach(h => {
+                const th = document.createElement("th");
+                th.textContent = h;
+                th.className = "border px-3 py-2 font-semibold bg-gray-100 whitespace-nowrap sticky top-0 z-10";
+                headerRow.appendChild(th);
+            });
+            container.appendChild(headerRow);
+
+            const startIdx = enablePagination ? (currentPage - 1) * pageSize : 0;
+            const endIdx = enablePagination ? currentPage * pageSize : data.length;
+            const rows = data.slice(startIdx, endIdx);
+
+            rows.forEach(row => {
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-gray-50";
+                headers.forEach(key => {
+                    const td = document.createElement("td");
+                    td.textContent = row[key] ?? "";
+                    td.className = "border px-3 py-2 whitespace-nowrap";
+                    tr.appendChild(td);
+                });
+                container.appendChild(tr);
+            });
+        }
+
+        tableSelect.addEventListener("change", function () {
+            loadTable(this.value);
+        });
+
+        // Load default on page load
+        loadTable(tableSelect.value);
+    </script>
+    <script>
+        document.querySelectorAll("#category #exportBtn, #diawt #exportBtn, #combined #exportBtn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                if (!currentData.length) {
+                    Swal.fire("No data", "There is no data to export!", "warning");
+                    return;
+                }
+
+                const exportHeaders = currentHeaders;
+                const exportRows = currentData.map(row => {
+                    const rowData = {};
+                    exportHeaders.forEach(key => {
+                        rowData[key] = row[key] ?? "";
+                    });
+                    return rowData;
+                });
+
+                const worksheet = XLSX.utils.json_to_sheet(exportRows, { header: exportHeaders });
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, "Report");
+
+                const selectedOption = document.getElementById("tableSelect").value;
+                const timestamp = new Date().toISOString().slice(0, 19).replace(/[-T:]/g, "");
+                const fileName = `${selectedOption}_summary.xlsx`;
+
+                XLSX.writeFile(workbook, fileName);
+            });
+        });
+    </script>
+
+
+
+</body>
+
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web Scraper</title>
+  <!-- <script src="https://cdn.tailwindcss.com"></script> -->
+  <link rel="stylesheet" href="static/css/custom.css">
+  <!-- <link rel="stylesheet" href="static/main-tw.css"> -->
+  <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.0/dist/sweetalert2.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.0/dist/sweetalert2.all.min.js"></script>
+</head>
+
+<body class="min-h-screen bg-gray-100">
+  <!-- Mobile Menu Button -->
+  <button id="mobileMenuButton" class="md:hidden p-4 fixed right-0 top-0 z-50">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+    </svg>
+  </button>
+
+  <!-- Navigation -->
+  <nav class="bg-white shadow-lg fixed w-full z-40">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex justify-between items-center h-16">
+        <div class="flex items-center">
+          <span class="text-2xl font-bold text-cyan-600">ScraperPro</span>
+        </div>
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="/" class="text-gray-700 hover:text-cyan-600 font-medium">Dashboard</a>
+          <a href="/productview" class="text-gray-700 hover:text-cyan-600 font-medium">Reports</a>
+          <a href="/summery" class="text-gray-700 hover:text-cyan-600 font-medium">Overall Summary</a>
+        </div>
+      </div>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden absolute w-full bg-white shadow-lg py-2">
+      <a href="/" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Dashboard</a>
+      <a href="/productview" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Reports</a>
+      <a href="/summery" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">Overall Summary</a>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="pt-20 pb-8 px-4 md:px-8">
+    <div class="max-w-7xl mx-auto">
+      <!-- Status Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+          <h3 class="text-lg font-semibold text-black mb-2">Montly Limit</h3>
+          <p class="text-sm font-bold text-black" id="monthly_product_limit">Loading...</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+          <h3 class="text-lg font-semibold text-black mb-2">Fetched Montly</h3>
+          <p class="text-sm font-bold text-black" id="products_fetched_month">Loading...</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-sm">
+          <h3 class="text-lg font-semibold text-black mb-2">Last Reset</h3>
+          <p class="text-sm font-bold text-black" id="last_reset">Loading...</p>
+        </div>
+      </div>
+
+
+      <!-- Scraping Form -->
+      <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+        <div class="bg-slate-100 mb-8 p-8 w-full lg:w-3/4 rounded-2xl border mx-auto">
+          <h1 class="text-3xl font-bold mb-6 text-center text-black">Start New Scraper</h1>
+          <form id="scrapeForm" class="space-y-6" action="/fetch" method="POST">
+            <div>
+              <label class="block text-lg font-semibold text-gray-700">Enter Products URL Here</label>
+              <input id="urlInput" type="text" placeholder="https://example.com/product"
+                class="w-full border-2 rounded-lg p-3 focus:outline-none focus:ring-4 focus:ring-purple-300" />
+            </div>
+
+            <div hidden>
+              <label class="block text-lg font-semibold text-gray-700">Pagination Pattern</label>
+              <input id="paginationPattern" type="text" placeholder="?page="
+                class="w-full border-2 rounded-lg p-3 focus:outline-none focus:ring-4 focus:ring-purple-300" />
+            </div>
+
+            <div>
+              <label class="block text-lg font-semibold text-gray-700">Number of Pages</label>
+              <input id="maxPages" type="number" placeholder="e.g., 5" min="1"
+                class="w-full border-2 rounded-lg p-3 focus:outline-none focus:ring-4 focus:ring-purple-300" />
+            </div>
+
+            <button type="submit"
+              class="w-full bg-cyan-500 text-white py-3 rounded-xl font-semibold hover:scale-105 transform transition duration-300">
+              Start Scraping
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-xl font-semibold mb-4 text-gray-800">Quick Links</h3>
+
+        {% for region in ['US', 'UK', 'EU', 'AU'] %}
+        <div class="mb-6">
+          <h4 class="text-lg font-semibold mb-2 text-blue-800">{{ region }} WEBSITES</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {% for site in websites if site.region == region and site.available == 'available for scrapping' %}
+            <a href="{{ site.url }}" target="_blank" data-url="{{ site.url }}" data-name="{{ site.title }}"
+              data-region="{{ site.region }}" data-type="{{ site.type }}"
+              class="scrape-link p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+              <div class="font-medium text-gray-900">{{ site.title }}</div>
+              <div class="text-sm text-gray-500 break-words">{{ site.url }}</div>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts -->
+  <script>
+    // Mobile menu toggle
+    const mobileMenuButton = document.getElementById('mobileMenuButton');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    mobileMenuButton.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!mobileMenu.contains(event.target) && !mobileMenuButton.contains(event.target)) {
+        mobileMenu.classList.add('hidden');
+      }
+    });
+  </script>
+
+  <script>
+    // Scraper form submission
+    document.querySelector('#scrapeForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const url = document.querySelector('#urlInput').value;
+      const paginationPattern = document.querySelector('#paginationPattern').value;
+      const maxPages = document.querySelector('#maxPages').value;
+
+      if (!url || !maxPages) {
+        Swal.fire({
+          title: 'Validation Error',
+          text: 'Please fill in both the URL and the Max Pages fields.',
+          icon: 'error',
+          confirmButtonText: 'Ok'
+        });
+        return;
+      }
+
+      Swal.fire({
+        title: 'Fetching Data...',
+        text: 'Please wait while we process your request.',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      fetch('/fetch', {
+        method: 'POST',
+        body: new URLSearchParams({ url, paginationPattern, maxPages }),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      })
+        .then(async response => {
+          const data = await response.json().catch(() => ({})); // Catch bad JSON safely
+
+          if (response.status === 400) {
+            await Swal.fire({
+              title: 'Daily Limit Reached',
+              text: data.error || 'You have reached the daily limit for scraping.',
+              icon: 'warning',
+              confirmButtonText: 'Ok'
+            });
+            return null;
+          }
+
+          if (response.status === 502) {
+            await Swal.fire({
+              title: 'Proxy Error',
+              text: data.error || 'Proxy validation failed. Please check your proxy configuration.',
+              icon: 'warning',
+              confirmButtonText: 'Ok'
+            });
+            return null;
+          }
+
+          return data;
+        })
+        .then(data => {
+          Swal.close();
+          if (!data) return;
+
+          if (data?.file) {
+            const byteCharacters = atob(data.file);
+            const byteNumbers = new Uint8Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const blob = new Blob([byteNumbers], {
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            });
+            const blobUrl = URL.createObjectURL(blob);
+
+            Swal.fire({
+              title: 'Download Ready!',
+              html: `<a href="${blobUrl}" download="${data.filename}">
+                   <button class="bg-cyan-500 px-4 py-2 rounded text-white">Download Excel File</button>
+                 </a>`,
+              icon: 'success',
+              showConfirmButton: false,
+              showCloseButton: true
+            });
+
+          } else if (data.error === 'Failed') {
+            Swal.fire({
+              title: 'Failed to Generate Report',
+              text: 'There was an issue generating the file. Please try again later.',
+              icon: 'error',
+              confirmButtonText: 'Ok'
+            });
+
+          } else {
+            Swal.fire({
+              title: 'Unknown Website',
+              text: 'Please enter a valid URL.',
+              icon: 'error',
+              confirmButtonText: 'Ok'
+            });
+          }
+        })
+        .catch(error => {
+          console.error("Fetch Error:", error);
+          Swal.close();
+          Swal.fire({
+            title: 'Error',
+            text: 'An error occurred while fetching the data.',
+            icon: 'error',
+            confirmButtonText: 'Ok'
+          });
+        });
+    });
+  </script>
+
+
+
+
+  <!-- <script>
+    // Scraper form submission
+    document.querySelector('#scrapeForm').addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const url = document.querySelector('#urlInput').value;
+      const paginationPattern = document.querySelector('#paginationPattern').value;
+      const maxPages = document.querySelector('#maxPages').value;
+
+      if (!url || !maxPages) {
+        Swal.fire({
+          title: 'Validation Error',
+          text: 'Please fill in both the URL and the Max Pages fields.',
+          icon: 'error',
+          confirmButtonText: 'Ok'
+        });
+        return; // Prevent the form submission if validation fails
+      }
+
+      Swal.fire({
+        title: 'Fetching Data...',
+        text: 'Please wait while we process your request.',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      });
+
+      fetch('/fetch', {
+        method: 'POST',
+        body: new URLSearchParams({ url, paginationPattern, maxPages }),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      })
+        .then(async response => {
+          if (response.status === 400) {
+            const data = await response.json();
+            return Swal.fire({
+              title: 'Daily Limit Reached',
+              text: data.error || 'You have reached the daily limit for scraping.',
+              icon: 'warning',
+              confirmButtonText: 'Ok'
+            });
+          }
+
+          if (response.status === 502) {
+            console.log("Proxy Error");
+            try {
+              const data = await response.json();
+              return Swal.fire({
+                title: 'Proxy Error',
+                text: data.error || 'Proxy validation failed. Please check your proxy configuration.',
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+              });
+            } catch {
+              return Swal.fire({
+                title: 'Proxy Error',
+                text: 'Proxy validation failed. Please check your proxy configuration.',
+                icon: 'warning',
+                confirmButtonText: 'Ok'
+              });
+            }
+          }
+
+          if (!response.ok) {
+            throw new Error(`Unexpected HTTP status: ${response.status}`);
+          }
+
+          return response.json(); // Normal response
+        })
+        .then(data => {
+          if (!data) return;
+
+          if (data?.file) {
+            const byteCharacters = atob(data.file);
+            const byteNumbers = new Uint8Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const blob = new Blob([byteNumbers], {
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            });
+            const blobUrl = URL.createObjectURL(blob);
+
+            Swal.fire({
+              title: 'Download Ready!',
+              html: `<a href="${blobUrl}" download="${data.filename}">
+                      <button class="bg-cyan-500 px-4 py-2 rounded text-white">Download Excel File</button>
+                    </a>`,
+              icon: 'success',
+              showConfirmButton: false,
+              showCloseButton: true
+            });
+          } else if (data.error === 'Failed') {
+            Swal.fire({
+              title: 'Failed to Generate Report',
+              text: 'There was an issue generating the file. Please try again later.',
+              icon: 'error',
+              confirmButtonText: 'Ok'
+            });
+          } else {
+            Swal.fire({
+              title: 'Unknown Website',
+              text: 'Please enter a valid URL.',
+              icon: 'error',
+              confirmButtonText: 'Ok'
+            });
+          }
+        })
+        .catch(error => {
+          console.error("Fetch Error:", error);
+          Swal.close();
+          Swal.fire({
+            title: 'Error',
+            text: 'An error occurred while fetching the data.',
+            icon: 'error',
+            confirmButtonText: 'Ok'
+          });
+        });
+    });
+  </script> -->
+
+  <script>
+    async function updateData() {
+      try {
+        const response = await fetch("/get_data");
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          document.getElementById("monthly_product_limit").textContent = result.data.monthly_product_limit;
+          document.getElementById("products_fetched_month").textContent = result.data.products_fetched_month;
+
+          // Format the date if needed
+          // const date = new Date(result.data.last_reset);
+          document.getElementById("last_reset").textContent = result.data.last_reset;
+        }
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", updateData);
+    setInterval(updateData, 5000);
+  </script>
+
+
+</body>
+
+</html>
